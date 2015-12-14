@@ -27,11 +27,10 @@ local function ConvertOldTTTOpts(t)
 	end
 end
 
-local function SplitAddedBy(s)
-	if s then
-		local split = string.Split(s, "|")
-		return split[1], split[2]
-	end
+local function SplitAddedBy(str)
+	-- example str: "STEAM_0:0:50054678|Wombloo"
+	local split = string.Split(str, "|")
+	return split[1], split[2]
 end
 
 local function CompileNicksAndSteamIds()

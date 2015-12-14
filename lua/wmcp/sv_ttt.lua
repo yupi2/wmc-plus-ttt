@@ -47,11 +47,11 @@ local function GetRoundEndSong(round_result)
 end
 
 hook.Add("TTTEndRound", "WMCPTTT_PlayRoundEnds", function(result)
-	local playsong = GetPlayerSong() or GetRoundEndSong(result)
-	if playsong then
+	local playersong = GetPlayerSong() or GetRoundEndSong(result)
+	if playersong then
 		net.Start("wmcpttt_play")
-			net.WriteString(playsong.url)
-			net.WriteString(playsong.title or "")
+			net.WriteString(playersong.url)
+			net.WriteString(playersong.title or "")
 		net.Broadcast()
 	end
 end)
@@ -61,8 +61,8 @@ hook.Add("TTTPrepareRound", "WMCPTTT_StopRoundEnds", function()
 	net.Broadcast()
 end)
 
-concommand.Add("wmcpttt_setendround", function(ply, cmd, args, raw)
-	if not wmcp.IsAllowed(ply, "edit") then ply:ChatPrint("access denied") return end
+concommand.Add("wmcpttt_setendround", function(plr, cmd, args, raw)
+	if not wmcp.IsAllowed(plr, "edit") then plr:ChatPrint("access denied") return end
 
 	local id = tonumber(args[1])
 	local round_result = tonumber(args[2])
@@ -95,22 +95,15 @@ concommand.Add("wmcpttt_setendround", function(ply, cmd, args, raw)
 	wmcp.Persist()
 end)
 
-concommand.Add("wmcpttt_setplayer", function(ply, cmd, args, raw)
-	if not wmcp.IsAllowed(ply, "edit") then ply:ChatPrint("access denied") return end
+concommand.Add("wmcpttt_setplayer", function(plr, cmd, args, raw)
+	if not wmcp.IsAllowed(plr, "edit") then plr:ChatPrint("access denied") return end
 
 	local id = tonumber(args[1])
 	local sid = tostring(args[2] or "")
 	local to_remove = args[3] == "1"
 
 	if not id or not sid then return end
-
-	-- The only check if it's a valid Steam ID.
-	-- I don't want to deal with copying the function definition
-	-- in because then I would have to deal with license shit.
-	-- Plus, who doesn't use ULib?
-	if ULib and ULib.isValidSteamID then
-		if not ULib.isValidSteamID(sid) then return end
-	end
+	if not string.match(sid, "^STEAM_%d:%d:%d+$") then return end
 
 	local val = mediaListTbl[id]
 	if not val then return end

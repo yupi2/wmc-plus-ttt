@@ -64,6 +64,11 @@ end)
 hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaId, line, media)
 	-- Insert permission check here:
 	-- todo eventually
+	--[[
+		-- first add FCVAR_REPLICATED to the CVAR's flags server side.
+		local group = GetConVar("wmcp_allowedgroup"):GetString()
+		if not LocalPlayer() in group then return end something like this
+	]]
 
 	menu:AddSpacer()
 
