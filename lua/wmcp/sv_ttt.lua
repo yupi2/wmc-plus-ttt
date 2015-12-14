@@ -81,7 +81,7 @@ concommand.Add("wmcpttt_setendround", function(plr, cmd, args, raw)
 	if to_remove then
 		if not val.ttt_opts then return end
 		val.ttt_opts[round_result] = nil
-		if table.Count(val.ttt_opts) == 0 then
+		if next(val.ttt_opts) == nil then
 			val.ttt_opts = nil
 		end
 	else
@@ -111,7 +111,7 @@ concommand.Add("wmcpttt_setplayer", function(plr, cmd, args, raw)
 	if to_remove then
 		if not val.ttt_opts then return end
 		val.ttt_opts[sid] = nil
-		if table.Count(val.ttt_opts) == 0 then
+		if next(val.ttt_opts) == nil then
 			val.ttt_opts = nil
 		end
 	else
