@@ -6,15 +6,31 @@ local wmcp_noroundend = CreateClientConVar("wmcp_noroundend", "0")
 local wmcp_noroundendifmusic = CreateClientConVar("wmcp_noroundendifmusic", "0")
 -- wmcp_noroundendifunfocused:
 --   if true then no music is played at the end of the round if the GMOD window isn't focused.
-local wmcp_noroundendifunfocused = CreateClientConVar("wmcp_noroundendifunfocused", "1")
+-- TODO: Figure out how I should deal with this. Maybe move into the main wmc-plus repo.
+--local wmcp_noroundendifunfocused = CreateClientConVar("wmcp_noroundendifunfocused", "1")
 -- wmcp_contmusicafterroundend:
 --   if true then the music from the end of the round continues to play into the next round.
 local wmcp_contmusicafterroundend = CreateClientConVar("wmcp_contmusicafterroundend", "0")
 
-hook.Add("TTTSettingsTabs", "WMCPTTT_Settings", function(dtabs)
-	local dsettings = dtabs.Items[2].Panel
+hook.Add("TTTSettingsTabs", "WMCPTTT Settings", function(dtabs)
+	local padding = dtabs:GetPadding() * 2
 
-	-- todo ugh
+	local dsettings = vgui.Create("DPanelList", dtabs)
+	dsettings:StretchToParent(0, 0, padding, 0)
+	dsettings:EnableVerticalScrollbar(true)
+	dsettings:SetPadding(10)
+	dsettings:SetSpacing(10)
+
+	local dgui = vgui.Create("DForm", dsettings)
+	dgui:SetName("General settings")
+
+	dgui:CheckBox("Disable end-round music", "wmcp_noroundend")
+	dgui:CheckBox("Disable end-round music if a song is already playing", "wmcp_noroundendifmusic")
+	--dgui:CheckBox("Mute music ", "wmcp_noroundendifunfocused")
+	dgui:CheckBox("Continue end-round music into the next round", "wmcp_contmusicafterroundend")
+	dsettings:AddItem(dgui)
+
+	--dtabs:AddSheet("Settings", dsettings, "icon16/wrench_orange.png", false, false, "WMC related settings")
 end)
 
 -- Just added "wyozimc_stop" in also because who wants to change their bind?
