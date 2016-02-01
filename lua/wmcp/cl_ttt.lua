@@ -4,10 +4,6 @@ local wmcp_noroundend = CreateClientConVar("wmcp_noroundend", "0")
 -- wmcp_noroundendifmusic:
 --   if true then no music is played at the end of the round is music is currently playing.
 local wmcp_noroundendifmusic = CreateClientConVar("wmcp_noroundendifmusic", "0")
--- wmcp_noroundendifunfocused:
---   if true then no music is played at the end of the round if the GMOD window isn't focused.
--- TODO: Figure out how I should deal with this. Maybe move into the main wmc-plus repo.
---local wmcp_noroundendifunfocused = CreateClientConVar("wmcp_noroundendifunfocused", "1")
 -- wmcp_contmusicafterroundend:
 --   if true then the music from the end of the round continues to play into the next round.
 local wmcp_contmusicafterroundend = CreateClientConVar("wmcp_contmusicafterroundend", "0")
@@ -26,7 +22,6 @@ hook.Add("TTTSettingsTabs", "WMCPTTT Settings", function(dtabs)
 
 	dgui:CheckBox("Disable end-round music", "wmcp_noroundend")
 	dgui:CheckBox("Disable end-round music if a song is already playing", "wmcp_noroundendifmusic")
-	--dgui:CheckBox("Mute music ", "wmcp_noroundendifunfocused")
 	dgui:CheckBox("Continue end-round music into the next round", "wmcp_contmusicafterroundend")
 	dsettings:AddItem(dgui)
 
@@ -50,10 +45,6 @@ net.Receive("wmcpttt_play", function()
 
 	if wmcp_noroundendifmusic:GetBool() then
 		if IsValid(clip) and clip:isPlaying() then return end
-	end
-
-	if wmcp_noroundendifunfocused:GetBool() and not system.HasFocus() then
-		return
 	end
 
 	-- If a song has been playing since the previous song, let's not stop it.
@@ -125,11 +116,11 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 	csmpnl:SetIcon("icon16/user_comment.png")
 
 	csubmenu:AddOption("Add by SteamID", function()
-		Derma_StringRequest( 
-			"Steam ID", 
+		Derma_StringRequest(
+			"Steam ID",
 			"Please input the steam id whose specific round end song to set",
 			"",
-			function(text) 
+			function(text)
 				RunConsoleCommand("wmcpttt_setplayer", mediaId, text, "0")
 			end,
 			function(text) end
@@ -137,11 +128,11 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 	end):SetIcon("icon16/add.png")
 
 	csubmenu:AddOption("Remove by SteamID", function()
-		Derma_StringRequest( 
-			"Steam ID", 
+		Derma_StringRequest(
+			"Steam ID",
 			"Please input the steam id whose specific round end song to remove",
 			"",
-			function(text) 
+			function(text)
 				RunConsoleCommand("wmcpttt_setplayer", mediaId, text, "1")
 			end,
 			function(text) end
