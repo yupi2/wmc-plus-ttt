@@ -100,15 +100,15 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_INNOCENT, is_innocent_music and "1" or "0")
 		print("After")
 		PrintTable(media, 1)
-	end):SetChecked(is_innocent_music)
+	end):SetIcon("icon16/" .. (is_innocent_music and "cancel" or "add") .. ".png")
 
 	tttsmpnl:AddOption("Toggle as Time limit reached end round music", function()
 		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_TIMELIMIT, is_timelimit_music and "1" or "0")
-	end):SetChecked(is_timelimit_music)--:SetIcon("icon16/time.png")
+	end):SetIcon("icon16/" .. (is_timelimit_music and "cancel" or "add") .. ".png")
 
 	tttsmpnl:AddOption("Toggle as Traitor end round music", function()
 		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_TRAITOR, is_traitor_music and "1" or "0")
-	end):SetChecked(is_traitor_music)--:SetIcon("icon16/user_red.png")
+	end):SetIcon("icon16/" .. (is_traitor_music and "cancel" or "add") .. ".png")
 
 	tttsmpnl:AddSpacer()
 
