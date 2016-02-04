@@ -79,22 +79,22 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 
 	menu:AddSpacer()
 
-	local submenu, smpnl = menu:AddSubMenu("TTT")
+	local tttsmpnl, tttsmopt = menu:AddSubMenu("TTT")
 
-	smpnl:SetIcon("VGUI/ttt/sprite_traitor")
-	smpnl.m_Image:SetSize(16, 16)
+	tttsmopt:SetIcon("VGUI/ttt/sprite_traitor")
+	tttsmopt.m_Image:SetSize(16, 16)
 
 	local is_innocent_music = false
 	local is_timelimit_music = false
 	local is_traitor_music = false
 
-	if media and media.ttt_opts then
+	if media.ttt_opts then
 		is_innocent_music = media.ttt_opts[WIN_INNOCENT] == true
 		is_timelimit_music = media.ttt_opts[WIN_TIMELIMIT] == true
 		is_traitor_music = media.ttt_opts[WIN_TRAITOR] == true
 	end
 
-	local blah = submenu:AddOption("Toggle as Innocent end round music", function()
+	tttsmpnl:AddOption("Toggle as Innocent end round music", function()
 		print("Before "..tostring(is_innocent_music))
 		PrintTable(media, 1)
 		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_INNOCENT, is_innocent_music and "1" or "0")
@@ -102,61 +102,65 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 		PrintTable(media, 1)
 	end):SetChecked(is_innocent_music)
 
-	submenu:AddOption("Toggle as Time limit reached end round music", function()
+	tttsmpnl:AddOption("Toggle as Time limit reached end round music", function()
 		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_TIMELIMIT, is_timelimit_music and "1" or "0")
 	end):SetChecked(is_timelimit_music)--:SetIcon("icon16/time.png")
 
-	submenu:AddOption("Toggle as Traitor end round music", function()
+	tttsmpnl:AddOption("Toggle as Traitor end round music", function()
 		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_TRAITOR, is_traitor_music and "1" or "0")
 	end):SetChecked(is_traitor_music)--:SetIcon("icon16/user_red.png")
 
-	submenu:AddSpacer()
+	tttsmpnl:AddSpacer()
 
-	local csubmenu, csmpnl = submenu:AddSubMenu("Player specific", function() end)
-	csmpnl:SetIcon("icon16/user_comment.png")
+	do
+		local plrsmpnl, plrsmopt = tttsmpnl:AddSubMenu("Players", function() end)
+		plrsmopt:SetIcon("icon16/user_comment.png")
 
-	csubmenu:AddOption("Add by SteamID", function()
-		Derma_StringRequest(
-			"Steam ID",
-			"Please input the steam id whose specific round end song to set",
-			"",
-			function(text)
-				RunConsoleCommand("wmcpttt_setplayer", mediaId, text, "0")
-			end,
-			function(text) end
-		)
-	end):SetIcon("icon16/add.png")
+		plrsmpnl:AddSpacer()
 
-	csubmenu:AddOption("Remove by SteamID", function()
-		Derma_StringRequest(
-			"Steam ID",
-			"Please input the steam id whose specific round end song to remove",
-			"",
-			function(text)
-				RunConsoleCommand("wmcpttt_setplayer", mediaId, text, "1")
-			end,
-			function(text) end
-		)
-	end):SetIcon("icon16/cancel.png")
+		for _,plr in pairs(player.GetAll()) do
+			local steamid = plr:SteamID()
+			local checked = media.ttt_opts and media.ttt_opts[steamid]
 
-	csubmenu:AddSpacer()
-
-	for _,ply in pairs(player.GetAll()) do
-		local steamid = ply:SteamID()
-		local checked = media and media.ttt_opts and media.ttt_opts[steamid]
-
-		csubmenu:AddOption(ply:Nick(), function()
-			RunConsoleCommand("wmcpttt_setplayer", mediaId, steamid, checked and "1" or "0")
-		end):SetChecked(checked)
+			plrsmpnl:AddOption("[".. plr:UserID() .. "] " .. plr:Nick(), function()
+				RunConsoleCommand("wmcpttt_setplayer", mediaId, steamid, checked and "1" or "0")
+			end):SetIcon("icon16/" .. (checked and "cancel" or "add") .. ".png")
+		end
 	end
 
-	--[[ menu:AddOption("Print data", function()
-		print("Printing debug data from WMCP")
-		print("menu: ", menu)
-		print("id: ", id)
-		print("line:", line)
-		print("media:")
-		PrintTable(media or {}, 1)
-		print("")
-	end):SetImage("icon16/lightning.png") ]]
+	do
+		local sidsmpnl, sidsmopt = tttsmpnl:AddSubMenu("Steam IDs", function() end)
+		sidsmopt:SetIcon("icon16/user_comment.png")
+
+		sidsmpnl:AddOption("Add by SteamID", function()
+			Derma_StringRequest(
+				"Steam ID",
+				"Please input the steam id whose specific round end song to set",
+				"",
+				function(text)
+					RunConsoleCommand("wmcpttt_setplayer", mediaId, text, "0")
+				end,
+				function(text) end
+			)
+		end):SetIcon("icon16/add.png")
+
+		if media.ttt_opts then
+			sidsmpnl:AddSpacer()
+
+			for k,v in pairs(media.ttt_opts) do
+				if not isstring(k) or v ~= true then
+					continue
+				end
+
+				sidsmpnl:AddOption(k, function()
+					Derma_Query("Are you sure you want to remove " .. k,
+						"yay or nay",
+						"yay", function()
+							RunConsoleCommand("wmcpttt_setplayer", mediaId, k, "1")
+						end,
+						"nay")
+				end):SetIcon("icon16/" .. (v and "cancel" or "add") .. ".png")
+			end
+		end
+	end
 end)
