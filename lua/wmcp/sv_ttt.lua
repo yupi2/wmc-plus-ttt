@@ -59,7 +59,7 @@ end)
 
 concommand.Add("wmcpttt_setendround", function(plr, cmd, args, raw)
 	if not wmcp.IsAllowed(plr, cmd) then
-		--plr:ChatPrint("access denied")
+		plr:ChatPrint("access denied")
 		return
 	end
 
@@ -67,15 +67,23 @@ concommand.Add("wmcpttt_setendround", function(plr, cmd, args, raw)
 	local round_result = tonumber(args[2])
 	local to_remove = args[3] == "1"
 
-	if not url then return end
+	if not url then
+		--
+		return
+	end
 
 	if round_result ~= WIN_TRAITOR and round_result ~= WIN_INNOCENT and
 			round_result ~= WIN_TIMELIMIT then
+		--
 		return
 	end
 
 	local media = t[url]
-	if not media then return end
+
+	if not media then
+		--
+		return
+	end
 
 	if to_remove then
 		if not media.ttt_opts then return end
@@ -96,19 +104,30 @@ end)
 
 concommand.Add("wmcpttt_setplayer", function(plr, cmd, args, raw)
 	if not wmcp.IsAllowed(plr, cmd) then
-		--plr:ChatPrint("access denied")
+		plr:ChatPrint("access denied")
 		return
 	end
 
 	local url = args[1]
-	local sid = tostring(args[2] or "")
+	local sid = tostring(args[2])
 	local to_remove = args[3] == "1"
 
-	if not id or not sid then return end
-	if not string.match(sid, "^STEAM_%d:%d:%d+$") then return end
+	if not url or not sid then
+		--
+		return
+	end
+
+	if not string.match(sid, "^STEAM_%d:%d:%d+$") then
+		--
+		return
+	end
 
 	local media = t[url]
-	if not media then return end
+
+	if not media then
+		--
+		return
+	end
 
 	if to_remove then
 		if not media.ttt_opts then return end

@@ -58,7 +58,7 @@ hook.Add("WMCPStopNetMsg", "TTTStuff", function(opts)
 	end
 end)
 
-hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaId, line, media)
+hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, line, url, media)
 	-- Insert permission check here:
 	-- todo eventually
 	--[[
@@ -87,17 +87,17 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 	tttsmpnl:AddOption("Toggle as Innocent end round music", function()
 		print("Before "..tostring(is_innocent_music))
 		PrintTable(media, 1)
-		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_INNOCENT, is_innocent_music and "1" or "0")
+		RunConsoleCommand("wmcpttt_setendround", url, WIN_INNOCENT, is_innocent_music and "1" or "0")
 		print("After")
 		PrintTable(media, 1)
 	end):SetIcon("icon16/" .. (is_innocent_music and "cancel" or "add") .. ".png")
 
 	tttsmpnl:AddOption("Toggle as Time limit reached end round music", function()
-		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_TIMELIMIT, is_timelimit_music and "1" or "0")
+		RunConsoleCommand("wmcpttt_setendround", url, WIN_TIMELIMIT, is_timelimit_music and "1" or "0")
 	end):SetIcon("icon16/" .. (is_timelimit_music and "cancel" or "add") .. ".png")
 
 	tttsmpnl:AddOption("Toggle as Traitor end round music", function()
-		RunConsoleCommand("wmcpttt_setendround", mediaId, WIN_TRAITOR, is_traitor_music and "1" or "0")
+		RunConsoleCommand("wmcpttt_setendround", url, WIN_TRAITOR, is_traitor_music and "1" or "0")
 	end):SetIcon("icon16/" .. (is_traitor_music and "cancel" or "add") .. ".png")
 
 	tttsmpnl:AddSpacer()
@@ -113,7 +113,7 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 			local checked = media.ttt_opts and media.ttt_opts[steamid]
 
 			plrsmpnl:AddOption("[".. plr:UserID() .. "] " .. plr:Nick(), function()
-				RunConsoleCommand("wmcpttt_setplayer", mediaId, steamid, checked and "1" or "0")
+				RunConsoleCommand("wmcpttt_setplayer", url, steamid, checked and "1" or "0")
 			end):SetIcon("icon16/" .. (checked and "cancel" or "add") .. ".png")
 		end
 	end
@@ -128,7 +128,7 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 				"Please input the steam id whose specific round end song to set",
 				"",
 				function(text)
-					RunConsoleCommand("wmcpttt_setplayer", mediaId, text, "0")
+					RunConsoleCommand("wmcpttt_setplayer", url, text, "0")
 				end,
 				function(text) end
 			)
@@ -146,7 +146,7 @@ hook.Add("WMCPMedialistRowRightClick", "WMCPAddDebugItem", function(menu, mediaI
 					Derma_Query("Are you sure you want to remove " .. k,
 						"yay or nay",
 						"yay", function()
-							RunConsoleCommand("wmcpttt_setplayer", mediaId, k, "1")
+							RunConsoleCommand("wmcpttt_setplayer", url, k, "1")
 						end,
 						"nay")
 				end):SetIcon("icon16/" .. (v and "cancel" or "add") .. ".png")
