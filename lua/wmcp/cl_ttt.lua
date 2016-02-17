@@ -41,7 +41,8 @@ hook.Add("WMCPPlayNetMsg", "TTTStuff", function(url, title, opts)
 
 	-- If media has been playing since last end-round, let's not play something new
 	if wmcp_contafterroundend:GetBool() then
-		if wmcp.GetClipMeta().opts.ttt_sent then
+		local clip_opts = wmcp.GetClipMeta().opts
+		if clip_opts and clip_opts.ttt_sent then
 			return false
 		end
 	end
@@ -50,7 +51,8 @@ end)
 -- Sent at round start to end any music started by TTT.
 hook.Add("WMCPStopNetMsg", "TTTStuff", function(opts)
 	if opts.ttt_sent and not wmcp_contafterroundend:GetBool() then
-		if wmcp.GetClipMeta().opts.ttt_sent then
+		local clip_opts = wmcp.GetClipMeta().opts
+		if clip_opts and clip_opts.ttt_sent then
 			return true -- stop that sound
 		end
 	end
