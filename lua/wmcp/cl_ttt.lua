@@ -1,12 +1,9 @@
--- wmcp_noroundend:
---   if true then no music is played at the end of the round.
-local wmcp_noroundend = CreateClientConVar("wmcp_noroundend", "0")
--- wmcp_noroundendifmusic:
---   if true then no music is played at the end of the round is music is currently playing.
-local wmcp_noroundendifmusic = CreateClientConVar("wmcp_noroundendifmusic", "0")
--- wmcp_contmusicafterroundend:
---   if true then the music from the end of the round continues to play into the next round.
-local wmcp_contmusicafterroundend = CreateClientConVar("wmcp_contmusicafterroundend", "0")
+-- if true then no music is played at the end of the round.
+local wmcp_playroundend = CreateConVar("wmcp_playroundend", "1", FCVAR_ARCHIVE)
+-- if true then no music is played at the end of the round if music is currently playing.
+local wmcp_playroundendifmusic = CreateConVar("wmcp_playroundendifmusic", "1", FCVAR_ARCHIVE)
+-- if true then the music from the end of the round continues to play into the next round.
+local wmcp_contafterroundend = CreateConVar("wmcp_contafterroundend", "0", FCVAR_ARCHIVE)
 
 hook.Add("TTTSettingsTabs", "WMCPTTT Settings", function(dtabs)
 	local padding = dtabs:GetPadding() * 2
@@ -20,51 +17,42 @@ hook.Add("TTTSettingsTabs", "WMCPTTT Settings", function(dtabs)
 	local dgui = vgui.Create("DForm", dsettings)
 	dgui:SetName("General settings")
 
-	dgui:CheckBox("Disable end-round music", "wmcp_noroundend")
-	dgui:CheckBox("Disable end-round music if a song is already playing", "wmcp_noroundendifmusic")
-	dgui:CheckBox("Continue end-round music into the next round", "wmcp_contmusicafterroundend")
+	dgui:CheckBox("Play end-round music", "wmcp_playroundend")
+	dgui:CheckBox("Play end-round music if a song is already playing", "wmcp_playroundendifmusic")
+	dgui:CheckBox("Continue end-round music into the next round", "wmcp_contafterroundend")
 	dsettings:AddItem(dgui)
 
 	--dtabs:AddSheet("Settings", dsettings, "icon16/wrench_orange.png", false, false, "WMC related settings")
 end)
 
--- Just added "wyozimc_stop" in also because who wants to change their bind?
--- UPDATE: I don't really care too much anymore. I'm going to use
--- the following and everyone should too:                                                                       :^)
---     bind semicolon "stopsound; wyozimc_stop; wmcp_stop"
--- concommand.Add("wyozimc_stop", function()
-	-- wmcp.StopClip()
--- end)
+hook.Add("WMCPPlayNetMsg", "TTTStuff", function(url, title, opts)
+	if not opts.ttt_sent then return end
 
-net.Receive("wmcpttt_play", function()
-	local clip = wmcp.GetClip()
-	local url, title = net.ReadString(), net.ReadString()
-	if title == "" then title = nil end
-
-	if wmcp_noroundend:GetBool() then return end
-
-	if wmcp_noroundendifmusic:GetBool() then
-		if IsValid(clip) and clip:isPlaying() then return end
+	if not wmcp_playroundend:GetBool() then
+		return false -- block
 	end
 
-	-- If a song has been playing since the previous song, let's not stop it.
-	if wmcp_contmusicafterroundend:GetBool() then
-		local meta = wmcp.GetClipMeta()
-		if meta and meta.ttt_started == true then return end
+	if not wmcp_playroundendifmusic:GetBool() then
+		local clip = wmcp.GetClip()
+		if IsValid(clip) and clip:isPlaying() then
+			return false -- block
+		end
 	end
 
-	wmcp.Play(url, {title = title, ttt_started = true})
+	-- If media has been playing since last end-round, let's not play something new
+	if wmcp_contafterroundend:GetBool() then
+		if wmcp.GetClipMeta().opts.ttt_sent then
+			return false
+		end
+	end
 end)
 
-net.Receive("wmcpttt_stop", function()
-	if wmcp_contmusicafterroundend:GetBool() then
-		local meta = wmcp.GetClipMeta()
-		if meta and meta.ttt_started == true then return end
-	end
-
-	local clip = wmcp.GetClip()
-	if IsValid(clip) then
-		clip:stop()
+-- Sent at round start to end any music started by TTT.
+hook.Add("WMCPStopNetMsg", "TTTStuff", function(opts)
+	if opts.ttt_sent and not wmcp_contafterroundend:GetBool() then
+		if wmcp.GetClipMeta().opts.ttt_sent then
+			return true -- stop that sound
+		end
 	end
 end)
 
